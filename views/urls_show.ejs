@@ -21,13 +21,8 @@
 
   <a href='#'>Create A TinyURL</a>
 
-  <h2>My URLS</h2>
-  <ul>
-    <% for (let key in urls) { %>
-      <li><%= urls[key] %> : <%= key %></li>
-  <% }; %>
-
-  </ul>
+  <h2>TinyURL for <%= longURL %></h2>
+  <%= shortURL %><br>
 
 </body>
 
