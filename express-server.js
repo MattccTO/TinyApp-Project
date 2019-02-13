@@ -1,14 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = 8080; // default port 8080
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.set('view engine', 'ejs');
 
-let urlDatabase = {
+const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
@@ -22,30 +24,59 @@ function generateRandomString() {
   }
   return tempArray.join('');
 }
-
+//  Root placeholder page
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
-// Respond to Get request with JSON object
+//  Read a JSON version of urlDatabase
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
 
-// Respond to Get request with HTML response
+//  HTML Hello page
 app.get('/hello', (req, res) => {
   res.send('<html><body>Hello <b>World</b></body></html>\n');
 });
 
+//  Read index of all TinyURL
 app.get('/urls', (req, res) => {
-  const urlDB = { urls: urlDatabase };
-  res.render('urls_index', urlDB);
+  const ejsVars = {
+    urls: urlDatabase,
+    username: req.cookies.username
+  };
+  res.render('urls_index', ejsVars);
 });
 
+//  Page to make new TinyURL
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const ejsVars = { username: req.cookies.username };
+  res.render('urls_new', ejsVars);
 });
 
+//  Read page for specified TinyURL
+app.get('/urls/:shortURL', (req, res) => {
+  const ejsVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies.username
+  };
+  res.render('urls_show', ejsVars);
+});
+
+//  Redirect to longURL given TinyURL
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
+
+//  Get the users login name and add it to cookies
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/urls/');
+});
+
+//  Generate a TinyUrl for new longURL and post/route to main index
 app.post('/urls', (req, res) => {
   if (req.body.longURL.slice(0, 4) !== 'http') {
     const fixedLongURL = `http://${req.body.longURL}`;
@@ -57,6 +88,7 @@ app.post('/urls', (req, res) => {
   }
 });
 
+//  Assign a new longURL for a given TinyURL and route to main index
 app.post('/urls/:shortURL', (req, res) => {
   if (req.body.longURL.slice(0, 4) !== 'http') {
     const fixedLongURL = `http://${req.body.longURL}`;
@@ -68,19 +100,10 @@ app.post('/urls/:shortURL', (req, res) => {
   }
 });
 
+//  Delete the urlDatabase entry associated with TinyURL and route to main index
 app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
-});
-
-app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
-});
-
-app.get('/urls/:shortURL', (req, res) => {
-  const urlDB = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  res.render('urls_show', urlDB);
 });
 
 app.listen(PORT, () => {
