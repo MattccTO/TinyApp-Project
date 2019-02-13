@@ -47,8 +47,19 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  urlDatabase[generateRandomString()] = req.body.longURL;
-  res.redirect('/urls');
+  if (req.body.longURL.slice(0, 4) !== 'http') {
+    const fixedLongURL = `http://${req.body.longURL}`;
+    urlDatabase[generateRandomString()] = fixedLongURL;
+    res.redirect('/urls');
+  } else {
+    urlDatabase[generateRandomString()] = req.body.longURL;
+    res.redirect('/urls');
+  }
+});
+
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
