@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 
-const urlDatabase = {
+let urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
@@ -55,6 +55,22 @@ app.post('/urls', (req, res) => {
     urlDatabase[generateRandomString()] = req.body.longURL;
     res.redirect('/urls');
   }
+});
+
+app.post('/urls/:shortURL', (req, res) => {
+  if (req.body.longURL.slice(0, 4) !== 'http') {
+    const fixedLongURL = `http://${req.body.longURL}`;
+    urlDatabase[req.params.shortURL] = fixedLongURL;
+    res.redirect('/urls');
+  } else {
+    urlDatabase[req.params.shortURL] = req.body.longURL;
+    res.redirect('/urls');
+  }
+});
+
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
 });
 
 app.get('/u/:shortURL', (req, res) => {
