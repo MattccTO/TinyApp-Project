@@ -73,7 +73,13 @@ app.get('/u/:shortURL', (req, res) => {
 //  Get the users login name and add it to cookies
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
-  res.redirect('/urls/');
+  res.redirect('/urls');
+});
+
+//  Logout the user
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
 });
 
 //  Generate a TinyUrl for new longURL and post/route to main index
