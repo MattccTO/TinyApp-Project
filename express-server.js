@@ -119,13 +119,10 @@ app.get('/login', (req, res) => {
 //  Read index of all TinyURL
 app.get('/urls', (req, res) => {
   const currentUser = cookieChecker(req.cookies.user_id);
-  let ejsVars;
+  const ejsVars = { userInfo: currentUser };
   if (currentUser) {
-    const userURLs = userUrlLookup(currentUser);
-    ejsVars = {
-      urls: userURLs,
-      userInfo: currentUser
-    };
+    const userURLs = userUrlLookup(currentUser.id);
+    ejsVars.urls = userURLs;
   }
   res.render('urls_index', ejsVars);
 });
@@ -147,10 +144,19 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const currentUser = cookieChecker(req.cookies.user_id);
   const ejsVars = {
+    userInfo: currentUser,
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    userInfo: currentUser
+    myUrl: false
   };
+  if (currentUser) {
+    const userURLs = userUrlLookup(currentUser.id);
+    for (const key in userURLs) {
+      if (userURLs[key].userID === currentUser.id && req.params.shortURL === key) {
+        ejsVars.myUrl = true;
+        ejsVars.longURL = userURLs[key].longURL;
+      }
+    }
+  }
   res.render('urls_show', ejsVars);
 });
 

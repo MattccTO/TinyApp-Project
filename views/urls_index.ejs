@@ -19,18 +19,20 @@
 
     <% include ./partials/_header.ejs %>
 
-    <h2>My URLS</h2>
-    <ul>
-      <% for (let key in urls) { %>
-          <li>
-            <%= urls[key].longURL %> : <%= key %>
-            <a href="/urls/<%= key %>"> <u>Edit</u></a>
-            <form method="POST" action="/urls/<%= key %>/delete"><button type="submit" class="btn btn-primary">Delete</button></form>
-          </li>
-        <% }; %>
-
-    </ul>
-
+    <% if (!userInfo) { %>
+      <h2> Login or Register to see your own TinyURLs!</h2>
+    <% } else { %>
+      <ul>
+      <% for (const key in urls) { %>
+        <li>
+          <%= urls[key].longURL %> : <%= key %>
+          <a href="/urls/<%= key %>"> <u>Edit</u></a>
+          <form method="POST" action="/urls/<%= key %>/delete"><button type="submit" class="btn btn-primary">Delete</button></form>
+        </li>
+      <% }; %>
+      </ul>
+    <% } %>
   </body>
-
 </html>
+
+<h2>My URLS</h2>

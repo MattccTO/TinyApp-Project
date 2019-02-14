@@ -19,17 +19,22 @@
 
     <% include ./partials/_header.ejs %>
 
-    <h2>TinyURL for <%= longURL %></h2>
-    <%= shortURL %><br>
+    <% if (!userInfo) { %>
+      <h2> Login or Register to see your own TinyURLs!</h2>
+    <% } else if (!myUrl) { %>
+      <h2>This TinyURL doesn't belong to you!</h2>
+    <% } else { %>
+      <h2>TinyURL for <%= longURL %></h2>
+      <%= shortURL %><br>
 
-    <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
-      <div class="form-group mb-2">
-        <label for="longURL">Update Long URL:</label>
-        <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
-    </form>
-
+      <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
+        <div class="form-group mb-2">
+          <label for="longURL">Update Long URL:</label>
+          <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    <% } %>%>
   </body>
 
 </html>
