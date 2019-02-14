@@ -37,6 +37,17 @@ function generateRandomString() {
   }
   return tempArray.join('');
 }
+
+//  Verify email not duplicate
+function emailLookup(emailCheck) {
+  for (let i in users) {
+    if (emailCheck === users[i].email) {
+      return true;
+    }
+  }
+  return false;
+}
+
 //  Root placeholder page
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -93,6 +104,25 @@ app.get('/u/:shortURL', (req, res) => {
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect('/urls');
+});
+
+//  Register a new user
+app.post('/register', (req, res) => {
+  if (req.body.email === '' || req.body.password === '') {
+    res.sendStatus(400);
+  } else if (emailLookup(req.body.email)) {
+    res.sendStatus(400);
+  } else {
+    const newUserID = generateRandomString();
+    users[newUserID] = {
+      id: newUserID,
+      email: req.body.email,
+      password: req.body.password
+    };
+    res.cookie('user_id', newUserID);
+    console.log(users);
+    res.redirect('/urls');
+  }
 });
 
 //  Logout the user
