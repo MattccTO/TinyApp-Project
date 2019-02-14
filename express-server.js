@@ -40,12 +40,22 @@ function generateRandomString() {
 
 //  Verify email not duplicate
 function emailLookup(emailCheck) {
-  for (let i in users) {
-    if (emailCheck === users[i].email) {
-      return true;
+  for (const id in users) {
+    if (emailCheck === users[id].email) {
+      return users[id];
     }
   }
   return false;
+}
+
+function cookieChecker(userID) {
+  let currentUser;
+  for (const id in users) {
+    if (userID === users[id].id) {
+      currentUser = users[id];
+    }
+  }
+  return currentUser;
 }
 
 //  Root placeholder page
@@ -65,31 +75,50 @@ app.get('/hello', (req, res) => {
 
 //  New user registration page
 app.get('/register', (req, res) => {
-  const ejsVars = { username: req.cookies.username };
+  const currentUser = cookieChecker(req.cookies.user_id);
+  // console.log(currentUser);
+  const ejsVars = {
+    userInfo: currentUser
+  };
   res.render('urls_reg', ejsVars);
+});
+
+//  Login page
+app.get('/login', (req, res) => {
+  const currentUser = cookieChecker(req.cookies.user_id);
+  const ejsVars = {
+    userInfo: currentUser
+  };
+  res.render('urls_login', ejsVars);
 });
 
 //  Read index of all TinyURL
 app.get('/urls', (req, res) => {
+  const currentUser = cookieChecker(req.cookies.user_id);
+  console.log(currentUser);
   const ejsVars = {
     urls: urlDatabase,
-    username: req.cookies.username
+    userInfo: currentUser
   };
   res.render('urls_index', ejsVars);
 });
 
 //  Page to make new TinyURL
 app.get('/urls/new', (req, res) => {
-  const ejsVars = { username: req.cookies.username };
+  const currentUser = cookieChecker(req.cookies.user_id);
+  const ejsVars = {
+    userInfo: currentUser
+  };
   res.render('urls_new', ejsVars);
 });
 
 //  Read page for specified TinyURL
 app.get('/urls/:shortURL', (req, res) => {
+  const currentUser = cookieChecker(req.cookies.user_id);
   const ejsVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies.username
+    userInfo: currentUser
   };
   res.render('urls_show', ejsVars);
 });
@@ -102,16 +131,23 @@ app.get('/u/:shortURL', (req, res) => {
 
 //  Get the users login name and add it to cookies
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
+  const currentUser = emailLookup(req.body.email);
+  if (!currentUser) {
+    res.status(403).send('An account was not found with that email');
+  } else if (req.body.password !== currentUser.password) {
+    res.status(403).send('Incorrect email & password combination.');
+  } else {
+    res.cookie('user_id', currentUser.id);
+    res.redirect('/urls');
+  }
 });
 
 //  Register a new user
 app.post('/register', (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
-    res.sendStatus(400);
+    res.status(400).send('You must register with both an email and a password.');
   } else if (emailLookup(req.body.email)) {
-    res.sendStatus(400);
+    res.status(400).send('An account is already registered with that email.');
   } else {
     const newUserID = generateRandomString();
     users[newUserID] = {
@@ -120,14 +156,14 @@ app.post('/register', (req, res) => {
       password: req.body.password
     };
     res.cookie('user_id', newUserID);
-    console.log(users);
+    // console.log(users);
     res.redirect('/urls');
   }
 });
 
 //  Logout the user
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
