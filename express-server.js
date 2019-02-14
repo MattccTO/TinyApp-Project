@@ -11,8 +11,10 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
+  b2xVn2: { longURL: 'http://www.lighthouselabs.ca', userID: 'aJ48lw' },
+  '9sm5xK': { longURL: 'http://www.google.com', userID: 'aJ48lw' },
+  m8Z29o: { longURL: 'http://www.github.com', userID: 'L6f2iG' },
+  km9iGH: { longURL: 'http://www.duckduckgo.com', userID: 'L6f2iG' }
 };
 
 const users = {
@@ -25,6 +27,16 @@ const users = {
     id: 'user2RandomID',
     email: 'user2@example.com',
     password: 'dishwasher-funk'
+  },
+  aJ48lw: {
+    id: 'aJ48lw',
+    email: 'test@example.com',
+    password: 'bestpassword'
+  },
+  L6f2iG: {
+    id: 'L6f2iG',
+    email: 'test2@example.com',
+    password: '12345'
   }
 };
 
@@ -48,6 +60,7 @@ function emailLookup(emailCheck) {
   return false;
 }
 
+//  Look up user by cookie ID
 function cookieChecker(userID) {
   let currentUser;
   for (const id in users) {
@@ -56,6 +69,17 @@ function cookieChecker(userID) {
     }
   }
   return currentUser;
+}
+
+//  Populate object of user URLs
+function userUrlLookup(userID) {
+  const userURLs = {};
+  for (const tiny in urlDatabase) {
+    if (urlDatabase[tiny].userID === userID) {
+      userURLs[tiny] = urlDatabase[tiny];
+    }
+  }
+  return userURLs;
 }
 
 //  Root placeholder page
@@ -95,11 +119,14 @@ app.get('/login', (req, res) => {
 //  Read index of all TinyURL
 app.get('/urls', (req, res) => {
   const currentUser = cookieChecker(req.cookies.user_id);
-  console.log(currentUser);
-  const ejsVars = {
-    urls: urlDatabase,
-    userInfo: currentUser
-  };
+  let ejsVars;
+  if (currentUser) {
+    const userURLs = userUrlLookup(currentUser);
+    ejsVars = {
+      urls: userURLs,
+      userInfo: currentUser
+    };
+  }
   res.render('urls_index', ejsVars);
 });
 
@@ -109,7 +136,11 @@ app.get('/urls/new', (req, res) => {
   const ejsVars = {
     userInfo: currentUser
   };
-  res.render('urls_new', ejsVars);
+  if (!currentUser) {
+    res.redirect('/login');
+  } else {
+    res.render('urls_new', ejsVars);
+  }
 });
 
 //  Read page for specified TinyURL
@@ -117,7 +148,7 @@ app.get('/urls/:shortURL', (req, res) => {
   const currentUser = cookieChecker(req.cookies.user_id);
   const ejsVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     userInfo: currentUser
   };
   res.render('urls_show', ejsVars);
