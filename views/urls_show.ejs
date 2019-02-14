@@ -19,9 +19,7 @@
 
     <% include ./partials/_header.ejs %>
 
-    <% if (!userInfo) { %>
-      <h2> Login or Register to see your own TinyURLs!</h2>
-    <% } else if (!myUrl) { %>
+    <% } if (!myUrl) { %>
       <h2>This TinyURL doesn't belong to you!</h2>
     <% } else { %>
       <h2>TinyURL for <%= longURL %></h2>

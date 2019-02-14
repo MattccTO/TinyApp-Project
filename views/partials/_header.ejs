@@ -4,7 +4,7 @@
       <a href='/login'>Login</a> | <a href='/register'>Register</a>
     <% } else { %>
       <a href='/urls'>URLs</a> | <a href='/urls/new'>Create New TinyURL</a>
-      Logged in as: <%= userInfo.email %>
+      Logged in as: <%= userInfo %>
             <form method="POST" action="/logout"><button type="submit" class="btn btn-primary">Logout</button></form>
     <% }; %>
 </header>
