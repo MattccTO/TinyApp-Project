@@ -9,7 +9,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
 
     <!-- Bootstrap CSS -->
-    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css' integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS' crossorigin='anonymous'>
+    <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/darkly/bootstrap.min.css" rel="stylesheet" integrity="sha384-w+8Gqjk9Cuo6XH9HKHG5t5I1VR4YBNdPt/29vwgfZR485eoEJZ8rJRbm3TR32P6k" crossorigin="anonymous">
 
     <title>TinyApp Index</title>
 
@@ -19,19 +19,16 @@
 
     <% include ./partials/_header.ejs %>
 
-    <% if (!userInfo) { %>
-      <h2> Login or Register to see your own TinyURLs!</h2>
-    <% } else { %>
       <h2>My URLS</h2>
         <ul>
         <% for (const key in urls) { %>
           <li>
-            <%= urls[key].longURL %> : <%= key %>
+            Long URL: <%= urls[key].longURL %>   |   TinyURL: <%= key %>
             <a href="/urls/<%= key %>"> <u>Edit</u></a>
-            <form method="POST" action="/urls/<%= key %>/delete"><button type="submit" class="btn btn-primary">Delete</button></form>
+            <form method="POST" action="/urls/<%= key %>/delete"><button type="submit" class="btn btn-danger">Delete</button></form>
           </li>
         <% }; %>
         </ul>
-    <% } %>
   </body>
 </html>
+

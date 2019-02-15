@@ -89,9 +89,14 @@ function userUrlLookup(userID) {
 }
 
 //  Root placeholder page
-// app.get('/', (req, res) => {
-//   res.send('Hello!');
-// });
+app.get('/', (req, res) => {
+  const currentUser = cookieChecker(req.session.user_id);
+  if (currentUser) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
+});
 
 //  New user registration page
 app.get('/register', (req, res) => {
@@ -125,8 +130,10 @@ app.get('/urls', (req, res) => {
     ejsVars.userInfo = currentUser.email;
     const userURLs = userUrlLookup(currentUser.id);
     ejsVars.urls = userURLs;
+    res.render('urls_index', ejsVars);
+  } else {
+    res.redirect('/login');
   }
-  res.render('urls_index', ejsVars);
 });
 
 //  Page to make new TinyURL
@@ -161,8 +168,11 @@ app.get('/urls/:shortURL', (req, res) => {
 
 //  Redirect to longURL given TinyURL
 app.get('/u/:shortURL', (req, res) => {
-  // const longURL = ;
-  res.redirect(urlDatabase[req.params.shortURL].longURL);
+  if (urlDatabase[req.params.shortURL]) {
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
+  } else {
+    res.status(404).send('Site not found');
+  }
 });
 
 //  Get the users login name and add it to cookies
@@ -206,16 +216,20 @@ app.post('/logout', (req, res) => {
 //  Generate a TinyUrl for new longURL and post/route to main index
 app.post('/urls', (req, res) => {
   const currentUser = cookieChecker(req.session.user_id);
-  let tempLongURL = req.body.longURL;
-  if (req.body.longURL.slice(0, 4) !== 'http') {
-    tempLongURL = `http://${req.body.longURL}`;
+  if (currentUser) {
+    let tempLongURL = req.body.longURL;
+    if (req.body.longURL.slice(0, 4) !== 'http') {
+      tempLongURL = `http://${req.body.longURL}`;
+    }
+    const tempShortURL = generateRandomString();
+    urlDatabase[tempShortURL] = {
+      longURL: tempLongURL,
+      userID: currentUser.id
+    };
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
   }
-  const tempShortURL = generateRandomString();
-  urlDatabase[tempShortURL] = {
-    longURL: tempLongURL,
-    userID: currentUser.id
-  };
-  res.redirect('/urls');
 });
 
 //  Assign a new longURL for a given TinyURL and route to main index
