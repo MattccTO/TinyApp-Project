@@ -216,7 +216,7 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:shortURL', (req, res) => {
   let tempLongURL = req.body.longURL;
   const currentUser = cookieChecker(req.cookies.user_id);
-  if (currentUser.id === urlDatabase[req.params.shortURL].userID) {
+  if (currentUser && (currentUser.id === urlDatabase[req.params.shortURL].userID)) {
     if (req.body.longURL.slice(0, 4) !== 'http') {
       tempLongURL = `http://${req.body.longURL}`;
     }
@@ -228,7 +228,7 @@ app.post('/urls/:shortURL', (req, res) => {
 //  Delete the urlDatabase entry associated with TinyURL and route to main index
 app.post('/urls/:shortURL/delete', (req, res) => {
   const currentUser = cookieChecker(req.cookies.user_id);
-  if (currentUser.id === urlDatabase[req.params.shortURL].userID) {
+  if (currentUser && (currentUser.id === urlDatabase[req.params.shortURL].userID)) {
     delete urlDatabase[req.params.shortURL];
   }
   res.redirect('/urls');
