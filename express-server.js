@@ -101,24 +101,25 @@ app.get('/', (req, res) => {
 //  New user registration page
 app.get('/register', (req, res) => {
   const currentUser = cookieChecker(req.session.user_id);
+  if (currentUser) {
+    res.redirect('/urls');
+  }
   const ejsVars = {
     userInfo: currentUser
   };
-  if (currentUser) {
-    ejsVars.userInfo = currentUser.email;
-  }
+
   res.render('urls_reg', ejsVars);
 });
 
 //  Login page
 app.get('/login', (req, res) => {
   const currentUser = cookieChecker(req.session.user_id);
+  if (currentUser) {
+    res.redirect('/urls');
+  }
   const ejsVars = {
     userInfo: currentUser
   };
-  if (currentUser) {
-    ejsVars.userInfo = currentUser.email;
-  }
   res.render('urls_login', ejsVars);
 });
 
@@ -202,7 +203,6 @@ app.post('/register', (req, res) => {
       hashedPassword: bcrypt.hashSync(req.body.password, 10)
     };
     req.session.user_id = newUserID;
-    // console.log(users);
     res.redirect('/urls');
   }
 });

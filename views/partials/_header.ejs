@@ -3,7 +3,7 @@
     <% if (!userInfo) { %>
       <a href='/login'>Login</a> | <a href='/register'>Register</a>
     <% } else { %>
-      <p>Logged in as: <%= userInfo %>    <form method="POST" action="/logout"><button type="submit" class="btn btn-info">Logout</button></form></p>
+      Logged in as: <%= userInfo %>    <form method="POST" action="/logout"><button type="submit" class="btn btn-info" style="float:right">Logout</button></form>
       <a href='/urls'>URLs</a> | <a href='/urls/new'>Create New TinyURL</a>
     <% }; %>
 </header>
