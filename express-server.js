@@ -173,8 +173,8 @@ app.get('/urls/:shortURL', (req, res) => {
 
 //  Redirect to longURL given TinyURL
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  // const longURL = ;
+  res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
 //  Get the users login name and add it to cookies
