@@ -215,16 +215,22 @@ app.post('/urls', (req, res) => {
 //  Assign a new longURL for a given TinyURL and route to main index
 app.post('/urls/:shortURL', (req, res) => {
   let tempLongURL = req.body.longURL;
-  if (req.body.longURL.slice(0, 4) !== 'http') {
-    tempLongURL = `http://${req.body.longURL}`;
+  const currentUser = cookieChecker(req.cookies.user_id);
+  if (currentUser.id === urlDatabase[req.params.shortURL].userID) {
+    if (req.body.longURL.slice(0, 4) !== 'http') {
+      tempLongURL = `http://${req.body.longURL}`;
+    }
+    urlDatabase[req.params.shortURL].longURL = tempLongURL;
   }
-  urlDatabase[req.params.shortURL].longURL = tempLongURL;
   res.redirect('/urls');
 });
 
 //  Delete the urlDatabase entry associated with TinyURL and route to main index
 app.post('/urls/:shortURL/delete', (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  const currentUser = cookieChecker(req.cookies.user_id);
+  if (currentUser.id === urlDatabase[req.params.shortURL].userID) {
+    delete urlDatabase[req.params.shortURL];
+  }
   res.redirect('/urls');
 });
 
