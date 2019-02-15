@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 
 
@@ -8,7 +8,11 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['Talkin it up on the Barry Gibb talk show Talkin bout issues'],
+  age: (24 * 60 * 60 * 1000)
+}));
 
 app.set('view engine', 'ejs');
 
@@ -91,7 +95,7 @@ function userUrlLookup(userID) {
 
 //  New user registration page
 app.get('/register', (req, res) => {
-  const currentUser = cookieChecker(req.cookies.user_id);
+  const currentUser = cookieChecker(req.session.user_id);
   const ejsVars = {
     userInfo: currentUser
   };
@@ -103,7 +107,7 @@ app.get('/register', (req, res) => {
 
 //  Login page
 app.get('/login', (req, res) => {
-  const currentUser = cookieChecker(req.cookies.user_id);
+  const currentUser = cookieChecker(req.session.user_id);
   const ejsVars = {
     userInfo: currentUser
   };
@@ -115,7 +119,7 @@ app.get('/login', (req, res) => {
 
 //  Read index of all TinyURL
 app.get('/urls', (req, res) => {
-  const currentUser = cookieChecker(req.cookies.user_id);
+  const currentUser = cookieChecker(req.session.user_id);
   const ejsVars = { userInfo: currentUser };
   if (currentUser) {
     ejsVars.userInfo = currentUser.email;
@@ -127,7 +131,7 @@ app.get('/urls', (req, res) => {
 
 //  Page to make new TinyURL
 app.get('/urls/new', (req, res) => {
-  const currentUser = cookieChecker(req.cookies.user_id);
+  const currentUser = cookieChecker(req.session.user_id);
   const ejsVars = {
     userInfo: currentUser
   };
@@ -141,7 +145,7 @@ app.get('/urls/new', (req, res) => {
 
 //  Read page for specified TinyURL
 app.get('/urls/:shortURL', (req, res) => {
-  const currentUser = cookieChecker(req.cookies.user_id);
+  const currentUser = cookieChecker(req.session.user_id);
   if (!currentUser || urlDatabase[req.params.shortURL].userID !== currentUser.id) {
     res.redirect('/login');
   } else if (urlDatabase[req.params.shortURL].userID === currentUser.id) {
@@ -169,7 +173,7 @@ app.post('/login', (req, res) => {
   } else if (!bcrypt.compareSync(req.body.password, currentUser.hashedPassword)) {
     res.status(403).send('Incorrect email & password combination.');
   } else {
-    res.cookie('user_id', currentUser.id);
+    req.session.user_id = currentUser.id;
     res.redirect('/urls');
   }
 });
@@ -187,7 +191,7 @@ app.post('/register', (req, res) => {
       email: req.body.email,
       hashedPassword: bcrypt.hashSync(req.body.password, 10)
     };
-    res.cookie('user_id', newUserID);
+    req.session.user_id = newUserID;
     // console.log(users);
     res.redirect('/urls');
   }
@@ -195,13 +199,13 @@ app.post('/register', (req, res) => {
 
 //  Logout the user
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
+  req.session = null;
   res.redirect('/urls');
 });
 
 //  Generate a TinyUrl for new longURL and post/route to main index
 app.post('/urls', (req, res) => {
-  const currentUser = cookieChecker(req.cookies.user_id);
+  const currentUser = cookieChecker(req.session.user_id);
   let tempLongURL = req.body.longURL;
   if (req.body.longURL.slice(0, 4) !== 'http') {
     tempLongURL = `http://${req.body.longURL}`;
@@ -217,7 +221,7 @@ app.post('/urls', (req, res) => {
 //  Assign a new longURL for a given TinyURL and route to main index
 app.post('/urls/:shortURL', (req, res) => {
   let tempLongURL = req.body.longURL;
-  const currentUser = cookieChecker(req.cookies.user_id);
+  const currentUser = cookieChecker(req.session.user_id);
   if (currentUser && (currentUser.id === urlDatabase[req.params.shortURL].userID)) {
     if (req.body.longURL.slice(0, 4) !== 'http') {
       tempLongURL = `http://${req.body.longURL}`;
@@ -229,7 +233,7 @@ app.post('/urls/:shortURL', (req, res) => {
 
 //  Delete the urlDatabase entry associated with TinyURL and route to main index
 app.post('/urls/:shortURL/delete', (req, res) => {
-  const currentUser = cookieChecker(req.cookies.user_id);
+  const currentUser = cookieChecker(req.session.user_id);
   if (currentUser && (currentUser.id === urlDatabase[req.params.shortURL].userID)) {
     delete urlDatabase[req.params.shortURL];
   }
