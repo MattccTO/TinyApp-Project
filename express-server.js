@@ -199,14 +199,17 @@ app.post('/logout', (req, res) => {
 
 //  Generate a TinyUrl for new longURL and post/route to main index
 app.post('/urls', (req, res) => {
+  const currentUser = cookieChecker(req.cookies.user_id);
+  let tempLongURL = req.body.longURL;
   if (req.body.longURL.slice(0, 4) !== 'http') {
-    const fixedLongURL = `http://${req.body.longURL}`;
-    urlDatabase[generateRandomString()] = fixedLongURL;
-    res.redirect('/urls');
-  } else {
-    urlDatabase[generateRandomString()] = req.body.longURL;
-    res.redirect('/urls');
+    tempLongURL = `http://${req.body.longURL}`;
   }
+  const tempShortURL = generateRandomString();
+  urlDatabase[tempShortURL] = {
+    longURL: tempLongURL,
+    userID: currentUser.id
+  };
+  res.redirect('/urls');
 });
 
 //  Assign a new longURL for a given TinyURL and route to main index
