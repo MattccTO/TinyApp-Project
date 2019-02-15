@@ -82,24 +82,6 @@ function userUrlLookup(userID) {
   return userURLs;
 }
 
-// Check if TinyURL is owned by user
-function ownerChecker(user, tinyURL) {
-  const checkURL = {
-    id: user.id,
-    shortURL: tinyURL,
-    longURL: '',
-    myUrl: false
-  };
-  const userURLs = userUrlLookup(user.id);
-  for (const key in userURLs) {
-    if (userURLs[key].userID === user.id && tinyURL === key) {
-      checkURL.myUrl = true;
-      checkURL.longURL = userURLs[key].longURL;
-    }
-  }
-  return checkURL;
-}
-
 //  Root placeholder page
 // app.get('/', (req, res) => {
 //   res.send('Hello!');
@@ -158,17 +140,17 @@ app.get('/urls/new', (req, res) => {
 //  Read page for specified TinyURL
 app.get('/urls/:shortURL', (req, res) => {
   const currentUser = cookieChecker(req.cookies.user_id);
-  if (!currentUser) {
+  if (!currentUser || urlDatabase[req.params.shortURL].userID !== currentUser.id) {
     res.redirect('/login');
+  } else if (urlDatabase[req.params.shortURL].userID === currentUser.id) {
+    const ejsVars = {
+      userInfo: currentUser.email,
+      shortURL: req.params.shortURL,
+      myUrl: true,
+      longURL: urlDatabase[req.params.shortURL].longURL
+    };
+    res.render('urls_show', ejsVars);
   }
-  const shortUrlInfo = ownerChecker(currentUser, req.params.shortURL);
-  const ejsVars = {
-    userInfo: currentUser.email,
-    shortURL: req.params.shortURL,
-    myUrl: shortUrlInfo.myUrl,
-    longURL: shortUrlInfo.longURL
-  };
-  res.render('urls_show', ejsVars);
 });
 
 //  Redirect to longURL given TinyURL

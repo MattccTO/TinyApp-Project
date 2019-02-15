@@ -19,9 +19,6 @@
 
     <% include ./partials/_header.ejs %>
 
-    <% } if (!myUrl) { %>
-      <h2>This TinyURL doesn't belong to you!</h2>
-    <% } else { %>
       <h2>TinyURL for <%= longURL %></h2>
       <%= shortURL %><br>
 
@@ -32,7 +29,6 @@
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </form>
-    <% } %>%>
   </body>
 
 </html>
