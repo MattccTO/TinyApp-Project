@@ -211,14 +211,12 @@ app.post('/urls', (req, res) => {
 
 //  Assign a new longURL for a given TinyURL and route to main index
 app.post('/urls/:shortURL', (req, res) => {
+  let tempLongURL = req.body.longURL;
   if (req.body.longURL.slice(0, 4) !== 'http') {
-    const fixedLongURL = `http://${req.body.longURL}`;
-    urlDatabase[req.params.shortURL] = fixedLongURL;
-    res.redirect('/urls');
-  } else {
-    urlDatabase[req.params.shortURL] = req.body.longURL;
-    res.redirect('/urls');
+    tempLongURL = `http://${req.body.longURL}`;
   }
+  urlDatabase[req.params.shortURL].longURL = tempLongURL;
+  res.redirect('/urls');
 });
 
 //  Delete the urlDatabase entry associated with TinyURL and route to main index
