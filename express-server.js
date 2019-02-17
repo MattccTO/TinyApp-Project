@@ -101,26 +101,27 @@ app.get('/', (req, res) => {
 //  New user registration page
 app.get('/register', (req, res) => {
   const currentUser = cookieChecker(req.session.user_id);
-  if (currentUser) {
-    res.redirect('/urls');
-  }
   const ejsVars = {
     userInfo: currentUser
   };
-
-  res.render('urls_reg', ejsVars);
+  if (currentUser) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_reg', ejsVars);
+  }
 });
 
 //  Login page
 app.get('/login', (req, res) => {
   const currentUser = cookieChecker(req.session.user_id);
-  if (currentUser) {
-    res.redirect('/urls');
-  }
   const ejsVars = {
     userInfo: currentUser
   };
-  res.render('urls_login', ejsVars);
+  if (currentUser) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_login', ejsVars);
+  }
 });
 
 //  Read index of all TinyURL

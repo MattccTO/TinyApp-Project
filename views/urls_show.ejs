@@ -19,7 +19,7 @@
 
     <% include ./partials/_header.ejs %>
 
-      TinyURL for <%= longURL %> :  <a href='/u/<%= shortURL %>'><%= shortURL %></a>
+      TinyURL for <%= longURL %> :  <a href='/u/<%= shortURL %>'>/u/<%= shortURL %></a>
 
       <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
         <div class="form-group mb-2">
