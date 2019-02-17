@@ -36,6 +36,12 @@ A hashing package to store user passwords securely:
 
 > npm install -E bcrypt@2.0.0
 
+### Method-Overrider
+
+Enables PUT and Delete HTTP actions: [Method-Override Github](https://github.com/expressjs/method-override)
+
+> npm install method-override
+
 ## Author
 
 Matt Cook - MattccTO on Github

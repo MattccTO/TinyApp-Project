@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-
+const methodOverride = require('method-override');
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -13,6 +13,7 @@ app.use(cookieSession({
   keys: ['Talkin it up on the Barry Gibb talk show Talkin bout issues'],
   age: (24 * 60 * 60 * 1000)
 }));
+app.use(methodOverride('_method'));
 
 app.set('view engine', 'ejs');
 
@@ -234,7 +235,7 @@ app.post('/urls', (req, res) => {
 });
 
 //  Assign a new longURL for a given TinyURL and route to main index
-app.post('/urls/:shortURL', (req, res) => {
+app.put('/urls/:shortURL', (req, res) => {
   let tempLongURL = req.body.longURL;
   const currentUser = cookieChecker(req.session.user_id);
   if (currentUser && (currentUser.id === urlDatabase[req.params.shortURL].userID)) {
@@ -247,7 +248,7 @@ app.post('/urls/:shortURL', (req, res) => {
 });
 
 //  Delete the urlDatabase entry associated with TinyURL and route to main index
-app.post('/urls/:shortURL/delete', (req, res) => {
+app.delete('/urls/:shortURL', (req, res) => {
   const currentUser = cookieChecker(req.session.user_id);
   if (currentUser && (currentUser.id === urlDatabase[req.params.shortURL].userID)) {
     delete urlDatabase[req.params.shortURL];

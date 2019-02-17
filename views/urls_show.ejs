@@ -21,7 +21,7 @@
 
       TinyURL for <%= longURL %> :  <a href='/u/<%= shortURL %>'>/u/<%= shortURL %></a>
 
-      <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
+      <form class="form-inline" action="/urls/<%= shortURL %>?_method=PUT" method="POST">
         <div class="form-group mb-2">
           <label for="longURL">Change Long URL:</label>
           <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
